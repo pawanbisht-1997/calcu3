@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Loan Prepayment Calculator</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      .calculator {
+        max-width: 700px;
+        margin: 50px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input[type="number"],
+      button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+
+      button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calculator">
+      <h2>Home Loan Prepayment Calculator</h2>
+      <form>
+        <label for="loanAmount">Loan Amount:</label>
+        <input type="number" id="loanAmount" required /><br /><br />
+
+        <label for="interestRate">Interest Rate (% p.a.):</label>
+        <input type="number" id="interestRate" required /><br /><br />
+
+        <label for="tenure">Tenure (in years):</label>
+        <input type="number" id="tenure" required /><br /><br />
+
+        <label for="emisPaid">No. of EMI’s paid:</label>
+        <input type="number" id="emisPaid" required /><br /><br />
+
+        <label for="prepayAmount">Prepay Amount:</label>
+        <input type="number" id="prepayAmount" required /><br /><br />
+
+        <button type="button" onclick="calculatePrepayment()">Calculate</button>
+      </form>
+
+      <div>
+        <h3>Revised Loan Tenure:</h3>
+        <p id="revisedTenure"></p>
+      </div>
+
+      <div>
+        <h3>Savings Due to Prepayment:</h3>
+        <p id="savings"></p>
+      </div>
+      <div>
+        <h3>Total Interest Saved Due to Prepayment:</h3>
+        <p id="totalInterestSaved"></p>
+      </div>
+    </div>
+
+    <script>
+      // Function to calculate revised loan tenure, savings, and total interest saved due to prepayment
+      function calculatePrepayment() {
+        // Get input values
+        var loanAmount = parseFloat(
+          document.getElementById("loanAmount").value
+        );
+        var interestRate =
+          parseFloat(document.getElementById("interestRate").value) / 100 / 12; // Monthly interest rate
+        var tenureMonths =
+          parseInt(document.getElementById("tenure").value) * 12;
+        var emisPaid = parseInt(document.getElementById("emisPaid").value);
+        var prepayAmount = parseFloat(
+          document.getElementById("prepayAmount").value
+        );
+
+        // Calculate remaining loan amount after prepayment
+        var remainingLoanAmount =
+          loanAmount * Math.pow(1 + interestRate, emisPaid) -
+          prepayAmount *
+            ((Math.pow(1 + interestRate, emisPaid) - 1) / interestRate);
+
+        // Calculate revised loan tenure
+        var revisedTenureMonths =
+          -Math.log(1 - (remainingLoanAmount * interestRate) / loanAmount) /
+          Math.log(1 + interestRate);
+
+        // Calculate savings due to prepayment
+        var savings = (tenureMonths - revisedTenureMonths) / 12;
+
+        // Calculate total interest paid before prepayment
+        var totalInterestBeforePrepayment =
+          (loanAmount * interestRate * tenureMonths) /
+          (1 - Math.pow(1 + interestRate, -tenureMonths));
+
+        // Calculate total interest paid after prepayment
+        var totalInterestAfterPrepayment =
+          (remainingLoanAmount * interestRate * revisedTenureMonths) /
+          (1 - Math.pow(1 + interestRate, -revisedTenureMonths));
+
+        // Calculate total interest saved due to prepayment
+        var totalInterestSaved =
+          totalInterestBeforePrepayment - totalInterestAfterPrepayment;
+
+        // Display results
+        document.getElementById("revisedTenure").innerHTML =
+          revisedTenureMonths.toFixed(2) + " months";
+        document.getElementById("savings").innerHTML =
+          savings.toFixed(2) + " years";
+        document.getElementById("totalInterestSaved").innerHTML =
+          totalInterestSaved.toFixed(2);
+      }
+    </script>
+  </body>
+</html>
